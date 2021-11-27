@@ -1,0 +1,355 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package OrderOfService;
+
+import java.sql.SQLException;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author natha
+ */
+public class ReviewServices extends javax.swing.JFrame {
+
+    /**
+     * Creates new form ReviewServices
+     */
+    public ReviewServices() {
+        initComponents();
+        getServices();
+    }
+    
+    /**
+     * Method that gets the required data about each service and adds it to the 
+     * table tblServices
+     */
+    public void getServices() {
+        int thisError = 0;
+        //Number of records in the table
+        int numItems = 0;
+        //Array holding all of the ServiceIDs
+        String[] ServiceIDs;
+        
+        //SQL Statement that gets a count of all services in table `Services` in DB
+        String serviceCount = "select COUNT(*) from `Services`";
+        
+        //SQL Statement that gets all the information needed by tblServices
+        String serviceSelect = "select * from `Services`";
+        
+        //Sets the SQL string to serviceCount
+        OrderOfServiceMain.dbObject.sqlString = serviceCount;
+        thisError = OrderOfServiceMain.dbObject.getCountBySelect();
+        
+        //Set numItems to the number of records returned by SQL query
+        numItems = OrderOfServiceMain.dbObject.NumberOfRecords;
+        
+        //Initialise ServiceIDs
+        ServiceIDs = new String[numItems];
+        
+        //Set the SQL string to serviceSelect
+        OrderOfServiceMain.dbObject.sqlString = serviceSelect;
+        
+        //Execute the statement
+        thisError = OrderOfServiceMain.dbObject.getRecordSetBySelect();
+        
+        if(thisError == 0) {
+            try {
+                //Variable i is used to increment and thus not overwrite data in
+                //array ServiceIDs
+                int i = 0;
+                
+                while(OrderOfServiceMain.dbObject.rs.next()) {
+                    //Get results from result set
+                    String ServiceID = OrderOfServiceMain.dbObject.rs.getString("ServiceID");
+                    String Title = OrderOfServiceMain.dbObject.rs.getString("Title");
+                    String Date = OrderOfServiceMain.dbObject.rs.getString("Date");
+                    String Session = OrderOfServiceMain.dbObject.rs.getString("Session");
+                    String ChurchName = OrderOfServiceMain.dbObject.rs.getString("ChurchName");
+                    String Filename = OrderOfServiceMain.dbObject.rs.getString("Filename");
+                    String SpeakerID = OrderOfServiceMain.dbObject.rs.getString("SpeakerID");
+                    
+                    DefaultTableModel model = (DefaultTableModel) tblServices.getModel();
+                    
+                    model.addRow(new Object[]{ServiceID, Title, Date, Session, ChurchName, Filename, SpeakerID});
+                    
+                    //Add the ID to array SongIDs
+                    ServiceIDs[i] = ServiceID;
+                    
+                    //Increment i
+                    i++; 
+                }
+            }
+            catch (SQLException ex) {
+                // Show errors in console
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+                thisError = ex.getErrorCode ();
+
+                UserMessageBox MyMessage = new UserMessageBox ();
+                MyMessage.setMessage ("SQLException: " + ex.getMessage());
+                MyMessage.setVisible (true);
+            }
+            
+            //Increment through ServiceID array to find number of items for each service
+            for(int i = 0; i < ServiceIDs.length; i++) {
+                String itemCount = "select COUNT(*) from `Contents` where `ServiceID` = " + ServiceIDs[i];
+                
+                //For testing purposes
+                System.out.println(itemCount);
+                
+                //Set the sqlString to itemCount
+                OrderOfServiceMain.dbObject.sqlString = itemCount;
+                
+                //Execute statement
+                OrderOfServiceMain.dbObject.getCountBySelect();
+                
+                int contentsNum = OrderOfServiceMain.dbObject.NumberOfRecords;
+                
+                DefaultTableModel model = (DefaultTableModel) tblServices.getModel();
+                
+                //Add the contentsNum to the table model
+                model.setValueAt(contentsNum, i, 7);
+            }
+        }  
+    }
+
+    /**
+     * This method is called from within the constructor to initialise the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblServices = new javax.swing.JTable();
+        lTitle = new javax.swing.JLabel();
+        lLogo = new javax.swing.JLabel();
+        lServiceID = new javax.swing.JLabel();
+        tfServiceID = new javax.swing.JTextField();
+        bServiceID = new javax.swing.JButton();
+        bExit = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("GWBC Order of Service Manager - Review Services");
+        setResizable(false);
+
+        jPanel1.setBackground(new java.awt.Color(218, 227, 243));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(68, 114, 196), 2));
+
+        tblServices.setBackground(new java.awt.Color(218, 227, 243));
+        tblServices.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(68, 114, 196), 2));
+        tblServices.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ServiceID", "Title", "Date", "Session", "Church Name", "Filename", "SpeakerID", "Number of Items"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblServices);
+
+        lTitle.setFont(new java.awt.Font("Calibri", 3, 36)); // NOI18N
+        lTitle.setForeground(new java.awt.Color(31, 56, 100));
+        lTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lTitle.setText("GWBC Review Services");
+
+        lLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/OrderOfService/GWBC Logo.png"))); // NOI18N
+
+        lServiceID.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
+        lServiceID.setForeground(new java.awt.Color(31, 56, 100));
+        lServiceID.setText("To see one service, enter its ServiceID");
+
+        tfServiceID.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                tfServiceIDKeyTyped(evt);
+            }
+        });
+
+        bServiceID.setBackground(new java.awt.Color(180, 199, 231));
+        bServiceID.setFont(new java.awt.Font("Calibri Light", 1, 16)); // NOI18N
+        bServiceID.setForeground(new java.awt.Color(31, 56, 100));
+        bServiceID.setText("Show Service Details");
+        bServiceID.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bServiceIDActionPerformed(evt);
+            }
+        });
+
+        bExit.setBackground(new java.awt.Color(180, 199, 231));
+        bExit.setFont(new java.awt.Font("Calibri Light", 1, 16)); // NOI18N
+        bExit.setForeground(new java.awt.Color(31, 56, 100));
+        bExit.setText("Exit to Main Menu");
+        bExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bExitActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lLogo)
+                .addGap(24, 24, 24))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(114, 114, 114)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(bExit)
+                    .addComponent(lServiceID))
+                .addGap(100, 100, 100)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tfServiceID, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bServiceID, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(185, 185, 185))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addComponent(lTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(50, 50, 50)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lServiceID)
+                    .addComponent(tfServiceID, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(31, 31, 31)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bServiceID)
+                    .addComponent(bExit))
+                .addGap(18, 18, 18)
+                .addComponent(lLogo)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Closes the form, but not the application as a whole
+     * @param evt 
+     */
+    private void bExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bExitActionPerformed
+        dispose();
+        
+        
+    }//GEN-LAST:event_bExitActionPerformed
+
+    /**
+     * ActionListener that creates a new form: ReviewServiceDetails
+     * @param evt 
+     */
+    private void bServiceIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bServiceIDActionPerformed
+        //Set String ServiceID to the text in tfSongID
+        String ServiceID = tfServiceID.getText();
+        
+        //Only create a new form if the ServiceID length is greater than zero
+        if (ServiceID.length() > 0) {
+            //Create a ReviewSongDetails form and set it visible
+            ReviewServiceDetails reviewServiceDetails = new ReviewServiceDetails(ServiceID);
+            reviewServiceDetails.setVisible(true);
+        
+            //Dispose this form
+            dispose();
+        }
+        else {
+            UserMessageBox myMessage = new UserMessageBox();
+            myMessage.setTitle("Error!");
+            myMessage.setMessage("There seems to be no inputted ServiceID.");
+            myMessage.setVisible(true);
+        }
+        
+    }//GEN-LAST:event_bServiceIDActionPerformed
+
+    /**
+     * Key Listener that consumes inputs if they are not numeric
+     * It also consumes inputs if the length of the text is 11
+     * @param evt 
+     */
+    private void tfServiceIDKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfServiceIDKeyTyped
+        char inChar = evt.getKeyChar();
+        
+        if(Character.isDigit(inChar) == false || tfServiceID.getText().length() == 11) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_tfServiceIDKeyTyped
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(ReviewServices.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(ReviewServices.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(ReviewServices.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(ReviewServices.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new ReviewServices().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bExit;
+    private javax.swing.JButton bServiceID;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lLogo;
+    private javax.swing.JLabel lServiceID;
+    private javax.swing.JLabel lTitle;
+    private javax.swing.JTable tblServices;
+    private javax.swing.JTextField tfServiceID;
+    // End of variables declaration//GEN-END:variables
+}

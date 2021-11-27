@@ -1,0 +1,9 @@
+0: Other
+1: Song
+2: Song
+3: Speaker
+4: Other
+5: Song
+6: Reading
+7: Song
+8: Other
